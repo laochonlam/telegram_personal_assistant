@@ -8,7 +8,7 @@ from fsm import TocMachine
 
 
 API_TOKEN = '474099509:AAGgL9LPw-rwHPLr57JAlHxtRqFKc7N52Sw'
-WEBHOOK_URL = '127.0.0.1/hook'
+WEBHOOK_URL = 'https://bot.laochanlam.me'
 
 app = Flask(__name__)
 bot = telegram.Bot(token=API_TOKEN)
@@ -55,7 +55,7 @@ def _set_webhook():
         print('Your webhook URL has been set to "{}"'.format(WEBHOOK_URL))
 
 
-@app.route('/hook', methods=['POST'])
+@app.route('/', methods=['POST'])
 def webhook_handler():
     update = telegram.Update.de_json(request.get_json(force=True), bot)
     machine.advance(update)
