@@ -13,7 +13,7 @@ from fsm import TocMachine
 
 
 API_TOKEN = '481103945:AAGF-yzyQNX7f-XxPo_yG500j5UWw6ZYLsY'
-WEBHOOK_URL = 'https://657a2c7f.ngrok.io/hook'
+WEBHOOK_URL = 'https://a2f460c6.ngrok.io/hook'
 
 app = Flask(__name__)
 bot = telegram.Bot(token=API_TOKEN)
@@ -24,7 +24,11 @@ machine = TocMachine(
         'translation_mode',
         'translating',
         'film_query_mode',
-        'film_querying'
+        'film_querying',
+        'notes_mode',
+        'notes_jotting',
+        'chat_mode',
+        'processing'
     ],
     transitions=[
         # translate function here
@@ -50,7 +54,7 @@ machine = TocMachine(
             'source': 'translating',
             'dest': 'translation_mode'
         },
-        # film query function here
+        # function here
         {
             'trigger': 'choose_mode',
             'source': 'user',
@@ -72,6 +76,52 @@ machine = TocMachine(
             'trigger': 'go_back_to_film_query_mode',
             'source': 'film_querying',
             'dest': 'film_query_mode'
+        },
+        # note function here
+        {
+            'trigger': 'choose_mode',
+            'source': 'user',
+            'dest': 'notes_mode',
+            'conditions': 'is_going_to_notes_mode'
+        },
+        {
+            'trigger': 'jot_notes',
+            'source': 'notes_mode',
+            'dest': 'user',
+            'conditions': 'is_going_back_to_user'
+        },
+        {
+            'trigger': 'jot_notes',
+            'source': 'notes_mode',
+            'dest': 'notes_jotting',
+        },
+        {
+            'trigger': 'go_back_to_notes_mode',
+            'source': 'notes_jotting',
+            'dest': 'notes_mode'
+        },
+        # chat function here
+        {
+            'trigger': 'choose_mode',
+            'source': 'user',
+            'dest': 'chat_mode',
+            'conditions': 'is_going_to_chat_mode'
+        },
+        {
+            'trigger': 'chat',
+            'source': 'chat_mode',
+            'dest': 'user',
+            'conditions': 'is_going_back_to_user'
+        },
+        {
+            'trigger': 'chat',
+            'source': 'chat_mode',
+            'dest': 'processing',
+        },
+        {
+            'trigger': 'go_back_to_chat_mode',
+            'source': 'processing',
+            'dest': 'chat_mode'
         }
     ],
     initial='user',
@@ -98,6 +148,10 @@ def webhook_handler():
         machine.translate(update, bot)
     elif (machine.is_film_query_mode()):
         machine.film_query(update, bot)
+    elif (machine.is_notes_mode()):
+        machine.jot_notes(update, bot)
+    elif (machine.is_chat_mode()):
+        machine.chat(update, bot)
         
     return 'ok'
 
