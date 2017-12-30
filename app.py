@@ -27,6 +27,7 @@ machine = TocMachine(
         'film_querying',
         'notes_mode',
         'notes_jotting',
+        'notes_getting'
         'chat_mode',
         'processing'
     ],
@@ -54,7 +55,7 @@ machine = TocMachine(
             'source': 'translating',
             'dest': 'translation_mode'
         },
-        # function here
+        # film query function here
         {
             'trigger': 'choose_mode',
             'source': 'user',
@@ -85,19 +86,31 @@ machine = TocMachine(
             'conditions': 'is_going_to_notes_mode'
         },
         {
-            'trigger': 'jot_notes',
+            'trigger': 'action',
             'source': 'notes_mode',
             'dest': 'user',
             'conditions': 'is_going_back_to_user'
         },
         {
-            'trigger': 'jot_notes',
+            'trigger': 'action',
             'source': 'notes_mode',
             'dest': 'notes_jotting',
+            'conditions': 'is_jotting_notes'
+        },
+        {
+            'trigger': 'action',
+            'source': 'notes_mode',
+            'dest': 'notes_getting',
+            'conditions': 'is_getting_notes'
         },
         {
             'trigger': 'go_back_to_notes_mode',
             'source': 'notes_jotting',
+            'dest': 'notes_mode'
+        },
+        {
+            'trigger': 'go_back_to_notes_mode',
+            'source': 'notes_getting',
             'dest': 'notes_mode'
         },
         # chat function here
@@ -149,7 +162,7 @@ def webhook_handler():
     elif (machine.is_film_query_mode()):
         machine.film_query(update, bot)
     elif (machine.is_notes_mode()):
-        machine.jot_notes(update, bot)
+        machine.action(update, bot)
     elif (machine.is_chat_mode()):
         machine.chat(update, bot)
         

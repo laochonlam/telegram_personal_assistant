@@ -194,36 +194,35 @@ class TocMachine(GraphMachine):
 
     def on_exit_notes_jotting(self, update, bot):
         print('Leaving notes_jotting')
+    
+    def is_jotting_notes(self, update, bot):
+        text = update.message.text
+        print("jotting detect")
+        return text.lower() == '/jotting' or text.lower() == '/j'
 
-    # # chat function Here
-    # def is_going_to_chat_mode(self, update, bot):
-    #     text = update.message.text
-    #     print("translate detect")
-    #     return text.lower() == '/translate' or text.lower() == '/t'
+    def is_getting_notes(self, update, bot):
+        text = update.message.text
+        print("getting detect")
+        return text.lower() == '/getting' or text.lower() == '/g'
 
-    # def on_enter_chat_mode(self, update, bot):
-    #     print('Entering translate mode')
+    # chat function Here
+    # note function Here
+    def is_going_to_chat_mode(self, update, bot):
+        text = update.message.text
+        print("chat detect")
+        return text.lower() == '/chat' or text.lower() == '/c'
 
-    # def on_exit_chat_mode(self, update, bot):
-    #     print('Leaving translate mode')
+    def on_enter_chat_mode(self, update, bot):
+        print('Entering chat mode')
 
-    # def on_enter_processing(self, update, bot):
-    #     translate_detect_object = translator.detect(update.message.text)
-    #     if (translate_detect_object.lang.find("zh-CN") != -1) or (translate_detect_object.lang.find("zh-tw") != -1):
-    #         print("find chinese")
-    #         translated_object = translator.translate(
-    #             update.message.text, src="zh-tw", dest="en")
-    #     else:
-    #         print("no find chinese")
-    #         translated_object = translator.translate(
-    #             update.message.text, dest="zh-tw")
-    #     # print(translate_detect_object.lang)
-    #     print(translated_object)
-    #     update.message.reply_text(translated_object.text)
-    #     self.go_back_to_chat_mode(update, bot)
+    def on_exit_chat_mode(self, update, bot):
+        print('Leaving chat mode')
 
-    # def on_exit_processing(self, update, bot):
-    #     print('Leaving processing')
+    def on_enter_processing(self, update, bot):
+        self.go_back_to_chat_mode(update, bot)
+
+    def on_exit_processing(self, update, bot):
+        print('Leaving processing')
 
 
     # General
