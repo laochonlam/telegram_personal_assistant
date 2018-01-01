@@ -17,7 +17,7 @@ WEBHOOK_URL = 'https://a2f460c6.ngrok.io/hook'
 
 app = Flask(__name__)
 bot = telegram.Bot(token=API_TOKEN)
-welcome_word = "What can I help you? \n  /t - translate mode\n  /f - film query mode\n  /n - notes mode\n  /c - chat mode"
+welcome_word = "What can I help you? \n  /t - translate mode\n  /f - film query mode\n  /n - notes mode\n  /c - image classification mode"
 
 machine = TocMachine(
     states=[
@@ -29,7 +29,7 @@ machine = TocMachine(
         'notes_mode',
         'notes_jotting',
         'notes_getting',
-        'chat_mode',
+        'image_classification_mode',
         'processing'
     ],
     transitions=[
@@ -113,28 +113,28 @@ machine = TocMachine(
             'source': 'notes_getting',
             'dest': 'notes_mode'
         },
-        # chat function here
+        # image_classification function here
         {
             'trigger': 'choose_mode',
             'source': 'user',
-            'dest': 'chat_mode',
-            'conditions': 'is_going_to_chat_mode'
+            'dest': 'image_classification_mode',
+            'conditions': 'is_going_to_image_classification_mode'
         },
         {
-            'trigger': 'chat',
-            'source': 'chat_mode',
+            'trigger': 'image_classification',
+            'source': 'image_classification_mode',
             'dest': 'user',
             'conditions': 'is_going_back_to_user'
         },
         {
-            'trigger': 'chat',
-            'source': 'chat_mode',
+            'trigger': 'image_classification',
+            'source': 'image_classification_mode',
             'dest': 'processing',
         },
         {
-            'trigger': 'go_back_to_chat_mode',
+            'trigger': 'go_back_to_image_classification_mode',
             'source': 'processing',
-            'dest': 'chat_mode'
+            'dest': 'image_classification_mode'
         },
         # Welcome word
         {
@@ -170,8 +170,8 @@ def webhook_handler():
         machine.film_query(update, bot)
     elif (machine.is_notes_mode()):
         machine.action(update, bot)
-    elif (machine.is_chat_mode()):
-        machine.chat(update, bot)
+    elif (machine.is_image_classification_mode()):
+        machine.image_classification(update, bot)
         
     return 'ok'
 

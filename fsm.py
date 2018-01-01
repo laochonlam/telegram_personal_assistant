@@ -25,7 +25,7 @@ model = Network(weights="imagenet")
 translator = Translator()
 db = pymysql.connect("140.116.245.244","laochanlam", "telegram", "chatbot")
 cursor = db.cursor()
-welcome_word = "What can I help you? \n  /t - translate mode\n  /f - film query mode\n  /n - notes mode\n  /c - chat mode"
+welcome_word = "What can I help you? \n  /t - translate mode\n  /f - film query mode\n  /n - notes mode\n  /c - image classifcation mode"
 
 class TocMachine(GraphMachine):
     
@@ -241,19 +241,19 @@ class TocMachine(GraphMachine):
         print("getting detect")
         return text.lower() == '/pull' or text.lower() == '/p'
 
-    # chat function Here
-    def is_going_to_chat_mode(self, update, bot):
+    # image_classification function Here
+    def is_going_to_image_classification_mode(self, update, bot):
         text = update.message.text
-        print("chat detect")
-        if (text.lower() == '/chat' or text.lower() == '/c'):
-            update.message.reply_text("chat mode\nyou can send any image to me, then I will predict what it is.")
+        print("image classification detect")
+        if (text.lower() == '/image_classification' or text.lower() == '/c'):
+            update.message.reply_text("image classification mode\nyou can send any image to me, then I will predict what it is.")
             return True
 
-    def on_enter_chat_mode(self, update, bot):
-        print('Entering chat mode')
+    def on_enter_image_classification_mode(self, update, bot):
+        print('Entering image classification mode')
 
-    def on_exit_chat_mode(self, update, bot):
-        print('Leaving chat mode')
+    def on_exit_image_classification_mode(self, update, bot):
+        print('Leaving image classification mode')
 
     def on_enter_processing(self, update, bot):
         print(update.message.photo)
@@ -273,11 +273,12 @@ class TocMachine(GraphMachine):
         predict = model.predict(image)
         P = imagenet_utils.decode_predictions(predict)
 
-        reply_msg = "依我的估計啦：\n"
+        reply_msg = "Umm... I think...\n"
         for (i, (imagenetID, label, prob)) in enumerate(P[0]):
-            reply_msg += ("{}. {}: {:.2f}%".format(i + 1, label.replace("_", " "), prob * 100))
-            update.message.reply_text(reply_msg)
-        self.go_back_to_chat_mode(update, bot)
+            reply_msg += ("{}. {}: {:.2f}%\n".format(i + 1, label.replace("_", " "), prob * 100))
+        reply_msg+= "is that right? <3"
+        update.message.reply_text(reply_msg)
+        self.go_back_to_image_classification_mode(update, bot)
 
     def on_exit_processing(self, update, bot):
         print('Leaving processing')
