@@ -53,6 +53,7 @@ python3 app.py
 The initial state is set to `user`.
 
 `user` is the initial mode of the bot. You can choose one of the modes below.
+
 `translation_mode` - You can enter any sentenses/word to the bot (any language), if it is Chinese, the bot will translate it into English. Otherwise, all language will be translate into Chinese.
 ```
 Chinese -> English
