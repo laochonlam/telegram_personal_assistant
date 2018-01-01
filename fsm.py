@@ -7,8 +7,12 @@ from lxml import etree, html
 import requests
 import json
 import urllib.request
+import pymysql
 
 translator = Translator()
+db = pymysql.connect("140.116.245.244","laochanlam", "telegram", "chatbot")
+cursor = db.cursor()
+welcome_word = "What can I help you? \n  /t - translate mode\n  /f - film query mode\n  /n - notes mode\n  /c - chat mode"
 
 class TocMachine(GraphMachine):
     
@@ -22,14 +26,14 @@ class TocMachine(GraphMachine):
     def is_going_to_translation_mode(self, update, bot):
         text = update.message.text
         print("translate detect")
-        return text.lower() == '/translate' or text.lower() == '/t'
+        if (text.lower() == '/translate' or text.lower() == '/t'):
+            update.message.reply_text("Translate mode")
+            return True
 
     def on_enter_translation_mode(self, update, bot):
-        update.message.reply_text("translation mode entered.")
         print('Entering translate mode')
         
     def on_exit_translation_mode(self, update, bot):
-        update.message.reply_text("translation mode exited.")
         print('Leaving translate mode')
 
     def on_enter_translating(self, update, bot):
@@ -54,8 +58,9 @@ class TocMachine(GraphMachine):
     def is_going_to_film_query_mode(self, update, bot):
         text = update.message.text
         print("film query detect")
-        update.message.reply_text("film query mode entered.")
-        return text.lower() == '/filmquery' or text.lower() == '/f'
+        if (text.lower() == '/filmquery' or text.lower() == '/f'):
+            update.message.reply_text("film query mode")
+            return True
 
     def on_enter_film_query_mode(self, update, bot):
         print('Entering film query mode')
@@ -181,7 +186,9 @@ class TocMachine(GraphMachine):
     def is_going_to_notes_mode(self, update, bot):
         text = update.message.text
         print("notes detect")
-        return text.lower() == '/notes' or text.lower() == '/n'
+        if (text.lower() == '/notes' or text.lower() == '/n'):
+            update.message.reply_text("notes mode\nyou can write anything here\n\"/p\" to get records in previously 3 days\n\"/b\" to back to user mode.")
+            return True
 
     def on_enter_notes_mode(self, update, bot):
         print('Entering notes mode')
@@ -190,23 +197,38 @@ class TocMachine(GraphMachine):
         print('Leaving notes mode')
 
     def on_enter_notes_jotting(self, update, bot):
+        sql = "INSERT INTO notes(data) VALUES ('%s');" % (update.message.text)
+        try:
+            cursor.execute(sql)
+            db.commit()
+        except:
+            db.rollback()
         self.go_back_to_notes_mode(update, bot)
 
     def on_exit_notes_jotting(self, update, bot):
         print('Leaving notes_jotting')
-    
-    def is_jotting_notes(self, update, bot):
-        text = update.message.text
-        print("jotting detect")
-        return text.lower() == '/jotting' or text.lower() == '/j'
 
+    def on_enter_notes_getting(self, update, bot):
+        sql = "SELECT * FROM notes WHERE DATE_ADD(CURRENT_DATE, INTERVAL - 3 DAY)"
+        try:
+            cursor.execute(sql)
+            results = cursor.fetchall()
+            for rows in results:
+                reply_msg = "%d %s" % (rows[0], rows[1])
+                update.message.reply_text(reply_msg)
+        except:
+            update.message.reply_text("ERROR")
+        self.go_back_to_notes_mode(update, bot)
+
+    def on_exit_notes_getting(self, update, bot):
+        print('Leaving notes_getting')
+    
     def is_getting_notes(self, update, bot):
         text = update.message.text
         print("getting detect")
-        return text.lower() == '/getting' or text.lower() == '/g'
+        return text.lower() == '/pull' or text.lower() == '/p'
 
     # chat function Here
-    # note function Here
     def is_going_to_chat_mode(self, update, bot):
         text = update.message.text
         print("chat detect")
@@ -228,4 +250,8 @@ class TocMachine(GraphMachine):
     # General
     def is_going_back_to_user(self, update, bot):
         text = update.message.text
-        return text.lower() == '/back' or text.lower() == '/b'
+        if  (text.lower() == '/back' or text.lower() == '/b'):
+            return True
+    def on_enter_user(self, update, bot):
+        update.message.reply_text(welcome_word)
+        print("user mode")

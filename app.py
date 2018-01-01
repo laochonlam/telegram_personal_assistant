@@ -17,6 +17,7 @@ WEBHOOK_URL = 'https://a2f460c6.ngrok.io/hook'
 
 app = Flask(__name__)
 bot = telegram.Bot(token=API_TOKEN)
+welcome_word = "What can I help you? \n  /t - translate mode\n  /f - film query mode\n  /n - notes mode\n  /c - chat mode"
 
 machine = TocMachine(
     states=[
@@ -27,7 +28,7 @@ machine = TocMachine(
         'film_querying',
         'notes_mode',
         'notes_jotting',
-        'notes_getting'
+        'notes_getting',
         'chat_mode',
         'processing'
     ],
@@ -94,14 +95,13 @@ machine = TocMachine(
         {
             'trigger': 'action',
             'source': 'notes_mode',
-            'dest': 'notes_jotting',
-            'conditions': 'is_jotting_notes'
+            'dest': 'notes_getting',
+            'conditions': 'is_getting_notes'
         },
         {
             'trigger': 'action',
             'source': 'notes_mode',
-            'dest': 'notes_getting',
-            'conditions': 'is_getting_notes'
+            'dest': 'notes_jotting',
         },
         {
             'trigger': 'go_back_to_notes_mode',
@@ -135,6 +135,12 @@ machine = TocMachine(
             'trigger': 'go_back_to_chat_mode',
             'source': 'processing',
             'dest': 'chat_mode'
+        },
+        # Welcome word
+        {
+            'trigger': 'choose_mode',
+            'source': 'user',
+            'dest': 'user',
         }
     ],
     initial='user',
