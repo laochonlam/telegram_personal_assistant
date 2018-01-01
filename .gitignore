@@ -4,3 +4,5 @@ __pycache__
 tools
 test.py
 virtualenv
+.DS_Store
+img

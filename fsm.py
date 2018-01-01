@@ -9,6 +9,19 @@ import json
 import urllib.request
 import pymysql
 
+# Machine Learning
+from keras.applications import InceptionV3
+from keras.applications import imagenet_utils
+from keras.applications.inception_v3 import preprocess_input
+from keras.preprocessing.image import load_img
+from keras.preprocessing.image import img_to_array
+import numpy as np
+
+inputShape = (299, 299)
+preprocess = preprocess_input
+Network = InceptionV3
+model = Network(weights="imagenet")
+
 translator = Translator()
 db = pymysql.connect("140.116.245.244","laochanlam", "telegram", "chatbot")
 cursor = db.cursor()
@@ -232,7 +245,9 @@ class TocMachine(GraphMachine):
     def is_going_to_chat_mode(self, update, bot):
         text = update.message.text
         print("chat detect")
-        return text.lower() == '/chat' or text.lower() == '/c'
+        if (text.lower() == '/chat' or text.lower() == '/c'):
+            update.message.reply_text("chat mode\nyou can send any image to me, then I will predict what it is.")
+            return True
 
     def on_enter_chat_mode(self, update, bot):
         print('Entering chat mode')
@@ -241,6 +256,27 @@ class TocMachine(GraphMachine):
         print('Leaving chat mode')
 
     def on_enter_processing(self, update, bot):
+        print(update.message.photo)
+        if len(update.message.photo) != 0:
+            rec_image = bot.getFile(update.message.photo.pop().file_id)
+            imageurl = rec_image.file_path
+            print(imageurl)
+            urllib.request.urlretrieve(imageurl, "img/for_predict.jpg")
+            img_location = "img/for_predict.jpg"
+
+        # Machine Learning
+        image = load_img(img_location, target_size=inputShape)
+        image = img_to_array(image)
+        image = np.expand_dims(image, axis=0)
+        image = preprocess(image)
+
+        predict = model.predict(image)
+        P = imagenet_utils.decode_predictions(predict)
+
+        reply_msg = "依我的估計啦：\n"
+        for (i, (imagenetID, label, prob)) in enumerate(P[0]):
+            reply_msg += ("{}. {}: {:.2f}%".format(i + 1, label.replace("_", " "), prob * 100))
+            update.message.reply_text(reply_msg)
         self.go_back_to_chat_mode(update, bot)
 
     def on_exit_processing(self, update, bot):

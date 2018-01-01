@@ -140,7 +140,7 @@ machine = TocMachine(
         {
             'trigger': 'choose_mode',
             'source': 'user',
-            'dest': 'user',
+            'dest': 'user'
         }
     ],
     initial='user',
@@ -161,6 +161,7 @@ def _set_webhook():
 @app.route('/hook', methods=['POST'])
 def webhook_handler():
     update = telegram.Update.de_json(request.get_json(force=True), bot)
+    # print(bot.getFile(update.message.photo.file_id))
     if (machine.is_user()):
         machine.choose_mode(update, bot)
     elif (machine.is_translation_mode()):
