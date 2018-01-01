@@ -257,27 +257,30 @@ class TocMachine(GraphMachine):
 
     def on_enter_processing(self, update, bot):
         print(update.message.photo)
-        if len(update.message.photo) != 0:
+        if (update.message.photo):
             rec_image = bot.getFile(update.message.photo.pop().file_id)
             imageurl = rec_image.file_path
             print(imageurl)
             urllib.request.urlretrieve(imageurl, "img/for_predict.jpg")
             img_location = "img/for_predict.jpg"
 
-        # Machine Learning
-        image = load_img(img_location, target_size=inputShape)
-        image = img_to_array(image)
-        image = np.expand_dims(image, axis=0)
-        image = preprocess(image)
+            # Machine Learning
+            image = load_img(img_location, target_size=inputShape)
+            image = img_to_array(image)
+            image = np.expand_dims(image, axis=0)
+            image = preprocess(image)
 
-        predict = model.predict(image)
-        P = imagenet_utils.decode_predictions(predict)
+            predict = model.predict(image)
+            P = imagenet_utils.decode_predictions(predict)
 
-        reply_msg = "Umm... I think...\n"
-        for (i, (imagenetID, label, prob)) in enumerate(P[0]):
-            reply_msg += ("{}. {}: {:.2f}%\n".format(i + 1, label.replace("_", " "), prob * 100))
-        reply_msg+= "is that right? <3"
-        update.message.reply_text(reply_msg)
+            reply_msg = "Umm... I think...\n"
+            for (i, (imagenetID, label, prob)) in enumerate(P[0]):
+                reply_msg += ("{}. {}: {:.2f}%\n".format(i + 1, label.replace("_", " "), prob * 100))
+            reply_msg+= "\nis that right? <3"
+            update.message.reply_text(reply_msg)
+        else:
+            reply_msg = "please send me the photo."
+            update.message.reply_text(reply_msg)
         self.go_back_to_image_classification_mode(update, bot)
 
     def on_exit_processing(self, update, bot):
