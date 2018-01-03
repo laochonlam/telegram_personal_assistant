@@ -2,7 +2,6 @@
 
 A telegram bot based on a finite state machine, which consist of four basic functions:
 - Translation mode
-	- 
 - Film query mode
 - Notes mode
 - Image classification mode
