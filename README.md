@@ -95,7 +95,7 @@ Any Language -> Chinese
 		
 * notes_mode
 	* Input: `ANY STRING`
-		* Reply: "your data is saved into the database sucessfully!"
+		* Reply: "your data has been saved into the database sucessfully!"
 
 	* Input: "/p"
 		* Reply: `DATA IN RECENT 3 DAYS`

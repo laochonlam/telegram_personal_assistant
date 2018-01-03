@@ -214,20 +214,26 @@ class TocMachine(GraphMachine):
         try:
             cursor.execute(sql)
             db.commit()
+            reply_msg = "your data have been saved into the database sucessfully!"
+            update.message.reply_text(reply_msg)
         except:
             db.rollback()
+            reply_msg = "ERROR"
+            update.message.reply_text(reply_msg)
         self.go_back_to_notes_mode(update, bot)
 
     def on_exit_notes_jotting(self, update, bot):
         print('Leaving notes_jotting')
 
     def on_enter_notes_getting(self, update, bot):
-        sql = "SELECT * FROM notes WHERE DATE_ADD(CURRENT_DATE, INTERVAL - 3 DAY)"
+        sql = "SELECT * FROM notes WHERE date > DATE_ADD(CURDATE(), INTERVAL -2 DAY);"
         try:
             cursor.execute(sql)
             results = cursor.fetchall()
+            i = 1
             for rows in results:
-                reply_msg = "%d %s" % (rows[0], rows[1])
+                reply_msg = "%d %s" % (i, rows[1])
+                i = i + 1
                 update.message.reply_text(reply_msg)
         except:
             update.message.reply_text("ERROR")
