@@ -20,7 +20,7 @@ lxml==4.1.1
 Markdown==2.6.10
 MarkupSafe==1.0
 mccabe==0.6.1
-numpy==1.13.3
+numpy==1.22.0
 olefile==0.44
 opencv-python==3.4.0.12
 Pillow==6.2.0
