@@ -34,7 +34,7 @@ PyYAML==5.1
 requests==2.20.0
 scipy==1.0.0
 six==1.11.0
-tensorflow==1.4.1
+tensorflow==2.9.3
 tensorflow-tensorboard==0.4.0rc3
 transitions==0.5.0
 urllib3==1.24.2
